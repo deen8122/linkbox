@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LinkBlockController;
+use App\Http\Controllers\LinkBlockGroupController;
 use App\Http\Controllers\LinkController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/link-blocks', [LinkBlockController::class, 'store']);
     Route::put('/api/link-blocks/{linkBlock}', [LinkBlockController::class, 'update',]);
     Route::delete('/api/link-blocks/{linkBlock}', [LinkBlockController::class, 'destroy']);
+
+    Route::put('/api/link-block-groups/reorder', [LinkBlockGroupController::class, 'reorder']);
+    Route::get('/api/link-block-groups', [LinkBlockGroupController::class, 'index']);
+    Route::post('/api/link-block-groups', [LinkBlockGroupController::class, 'store']);
+    Route::put('/api/link-block-groups/{linkBlockGroup}', [LinkBlockGroupController::class, 'update']);
+    Route::delete('/api/link-block-groups/{linkBlockGroup}', [LinkBlockGroupController::class, 'destroy']);
 
     Route::post('/auth/logout', [
         AuthController::class,

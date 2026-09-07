@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LinkBlock extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
+        'link_block_group_id',
         'url',
         'title',
         'image',
@@ -19,6 +23,11 @@ class LinkBlock extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(LinkBlockGroup::class, 'link_block_group_id');
     }
     protected $appends = [
         'image_url',

@@ -40,6 +40,11 @@ class LinkBlockController extends Controller
                 'integer',
                 'min:0',
             ],
+
+            'blocks.*.link_block_group_id' => [
+                'nullable',
+                'integer',
+            ],
         ]);
 
         $this->linkBlockService->reorder(
@@ -64,6 +69,10 @@ class LinkBlockController extends Controller
                 'nullable',
                 'string',
                 'max:255',
+            ],
+            'link_block_group_id' => [
+                'nullable',
+                'integer',
             ],
             'image' => [
                 'nullable',
@@ -101,6 +110,10 @@ class LinkBlockController extends Controller
                 'nullable',
                 'string',
                 'max:255',
+            ],
+            'link_block_group_id' => [
+                'nullable',
+                'integer',
             ],
             'image' => [
                 'nullable',

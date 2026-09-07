@@ -59,7 +59,8 @@ class LinkFaviconService
         $faviconUrl = "https://{$domain}/favicon.ico";
 
         try {
-            $response = Http::timeout(10)
+            $response = Http::timeout(2)
+                ->connectTimeout(2)
                 ->withoutVerifying()
                 ->get($faviconUrl);
 

@@ -1,6 +1,9 @@
 SAIL := ./vendor/bin/sail
 
-.PHONY: init up seed storage-link npm-install
+.PHONY: install init up seed storage-link npm-install
+
+install:
+	@bash docker/scripts/install.sh
 
 init: up seed storage-link npm-install
 	@echo ""

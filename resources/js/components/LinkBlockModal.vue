@@ -6,6 +6,10 @@ const props = defineProps({
         type: Object,
         default: null,
     },
+    groups: {
+        type: Array,
+        default: () => [],
+    },
 })
 
 const emit = defineEmits([
@@ -15,6 +19,7 @@ const emit = defineEmits([
 
 const url = ref('')
 const title = ref('')
+const groupId = ref('')
 const image = ref(null)
 const imagePreview = ref(null)
 const removeImage = ref(false)
@@ -29,6 +34,7 @@ onMounted(() => {
         url.value = props.block.url
         title.value = props.block.title
         imagePreview.value = props.block.image_url
+        groupId.value = props.block.link_block_group_id ?? ''
     }
 })
 
@@ -93,6 +99,10 @@ const submit = async () => {
 
         formData.append('url', url.value.trim())
         formData.append('title', title.value.trim())
+
+        if (groupId.value) {
+            formData.append('link_block_group_id', groupId.value)
+        }
 
         if (image.value) {
             formData.append('image', image.value)
@@ -188,6 +198,26 @@ const submit = async () => {
                         type="text"
                         placeholder="Название"
                     >
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Категория
+                    </label>
+
+                    <select v-model="groupId">
+                        <option value="">
+                            Без группы
+                        </option>
+
+                        <option
+                            v-for="group in groups"
+                            :key="group.id"
+                            :value="group.id"
+                        >
+                            {{ group.name }}
+                        </option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -334,7 +364,8 @@ const submit = async () => {
     font-weight: 500;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
     width: 100%;
     box-sizing: border-box;
 

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\LinkBlock;
+use App\Models\LinkBlockGroup;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
@@ -28,13 +29,33 @@ class LinkBlockService
 
     public function reorder(int $userId, array $blocks): void
     {
+        $groupIds = collect($blocks)
+            ->pluck('link_block_group_id')
+            ->filter()
+            ->unique();
+
+        $validGroupIds = LinkBlockGroup::query()
+            ->where('user_id', $userId)
+            ->whereIn('id', $groupIds)
+            ->pluck('id');
+
         foreach ($blocks as $blockData) {
+            $update = [
+                'position' => $blockData['position'],
+            ];
+
+            if (array_key_exists('link_block_group_id', $blockData)) {
+                $groupId = $blockData['link_block_group_id'];
+
+                $update['link_block_group_id'] = $groupId && $validGroupIds->contains($groupId)
+                    ? $groupId
+                    : null;
+            }
+
             LinkBlock::query()
                 ->where('id', $blockData['id'])
                 ->where('user_id', $userId)
-                ->update([
-                    'position' => $blockData['position'],
-                ]);
+                ->update($update);
         }
     }
 
@@ -42,6 +63,7 @@ class LinkBlockService
     {
         return LinkBlock::create([
             'user_id' => $user->id,
+            'link_block_group_id' => $this->resolveGroupId($user->id, $data),
             'url' => $data['url'],
             'title' => $data['title'] ?? $data['url'],
             'image' => $image ? $this->storeImage($image, $user->id) : null,
@@ -78,6 +100,7 @@ class LinkBlockService
 
         $linkBlock->url = $data['url'];
         $linkBlock->title = $data['title'] ?? $data['url'];
+        $linkBlock->link_block_group_id = $this->resolveGroupId($linkBlock->user_id, $data);
 
         $linkBlock->save();
 
@@ -111,6 +134,20 @@ class LinkBlockService
     private function deleteImage(string $path): void
     {
         Storage::disk('public')->delete($path);
+    }
+
+    private function resolveGroupId(int $userId, array $data): ?int
+    {
+        if (empty($data['link_block_group_id'])) {
+            return null;
+        }
+
+        $exists = LinkBlockGroup::query()
+            ->where('id', $data['link_block_group_id'])
+            ->where('user_id', $userId)
+            ->exists();
+
+        return $exists ? (int) $data['link_block_group_id'] : null;
     }
 
     private function getNextPosition(int $userId): int
