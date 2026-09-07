@@ -11,12 +11,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'background_path'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    protected $appends = [
+        'background_url',
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -34,5 +38,14 @@ class User extends Authenticatable
     public function linkBlocks(): HasMany
     {
         return $this->hasMany(LinkBlock::class);
+    }
+
+    public function getBackgroundUrlAttribute(): ?string
+    {
+        if (!$this->background_path) {
+            return null;
+        }
+
+        return asset('storage/' . $this->background_path);
     }
 }

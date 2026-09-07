@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LinkBlockController;
 use App\Http\Controllers\LinkBlockGroupController;
 use App\Http\Controllers\LinkController;
+use App\Http\Controllers\UserBackgroundController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -40,6 +41,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/link-block-groups', [LinkBlockGroupController::class, 'store']);
     Route::put('/api/link-block-groups/{linkBlockGroup}', [LinkBlockGroupController::class, 'update']);
     Route::delete('/api/link-block-groups/{linkBlockGroup}', [LinkBlockGroupController::class, 'destroy']);
+
+    Route::post('/api/user/background', [UserBackgroundController::class, 'update']);
+    Route::delete('/api/user/background', [UserBackgroundController::class, 'destroy']);
 
     Route::post('/auth/logout', [
         AuthController::class,
