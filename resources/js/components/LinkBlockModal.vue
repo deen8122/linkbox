@@ -10,6 +10,10 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    defaultGroupId: {
+        type: [Number, String],
+        default: null,
+    },
 })
 
 const emit = defineEmits([
@@ -35,6 +39,8 @@ onMounted(() => {
         title.value = props.block.title
         imagePreview.value = props.block.image_url
         groupId.value = props.block.link_block_group_id ?? ''
+    } else if (props.defaultGroupId) {
+        groupId.value = props.defaultGroupId
     }
 })
 

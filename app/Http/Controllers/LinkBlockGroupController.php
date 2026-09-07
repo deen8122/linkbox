@@ -30,6 +30,14 @@ class LinkBlockGroupController extends Controller
                 'string',
                 'max:255',
             ],
+            'color' => [
+                'nullable',
+                'regex:/^#[0-9a-fA-F]{6}$/',
+            ],
+            'background_color' => [
+                'nullable',
+                'regex:/^#[0-9a-fA-F]{6}$/',
+            ],
         ]);
 
         $group = $this->linkBlockGroupService->create(
@@ -54,6 +62,14 @@ class LinkBlockGroupController extends Controller
                 'required',
                 'string',
                 'max:255',
+            ],
+            'color' => [
+                'nullable',
+                'regex:/^#[0-9a-fA-F]{6}$/',
+            ],
+            'background_color' => [
+                'nullable',
+                'regex:/^#[0-9a-fA-F]{6}$/',
             ],
         ]);
 

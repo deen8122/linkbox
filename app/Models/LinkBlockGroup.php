@@ -14,6 +14,8 @@ class LinkBlockGroup extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'color',
+        'background_color',
         'position',
     ];
 

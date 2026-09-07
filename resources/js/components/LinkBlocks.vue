@@ -468,8 +468,11 @@ const dragOverSection = (event, groupId) => {
     dragOverGroupSection.value = groupId
 }
 
-const createBlock = () => {
+const createGroupId = ref(null)
+
+const createBlock = (groupId = null) => {
     editingBlock.value = null
+    createGroupId.value = groupId
     showModal.value = true
 }
 
@@ -481,6 +484,7 @@ const editBlock1 = (block) => {
 const closeModal = () => {
     showModal.value = false
     editingBlock.value = null
+    createGroupId.value = null
 }
 
 const saveBlock = (block) => {
@@ -592,6 +596,11 @@ onBeforeUnmount(() => {
                 @drop="groupDrop($event, group)"
                 @dragend="groupDragEnd"
             >
+                <span
+                    class="link-block-group-dot"
+                    :style="{ backgroundColor: group.color || '#ccc' }"
+                ></span>
+
                 <span class="link-block-group-pill-name">
                     {{ group.name }}
                 </span>
@@ -647,11 +656,19 @@ onBeforeUnmount(() => {
                 v-for="section in sections"
                 :key="section.group?.id ?? 'ungrouped'"
                 class="link-block-section"
+                :class="{ 'has-background': !!section.group?.background_color }"
+                :style="section.group?.background_color ? { backgroundColor: section.group.background_color } : {}"
             >
                 <h3
                     v-if="section.group || section.items.length"
                     class="link-block-section-title"
                 >
+                    <span
+                        v-if="section.group"
+                        class="link-block-group-dot"
+                        :style="{ backgroundColor: section.group.color || '#ccc' }"
+                    ></span>
+
                     {{ section.group ? section.group.name : 'Без группы' }}
                 </h3>
 
@@ -760,12 +777,11 @@ onBeforeUnmount(() => {
 
                     </div>
 
-                    <!-- Единственный пустой блок -->
+                    <!-- Добавить ссылку в этот раздел -->
                     <button
-                        v-if="!section.group"
                         type="button"
                         class="link-block link-block-empty"
-                        @click="createBlock"
+                        @click="createBlock(section.group?.id ?? null)"
                     >
                         <span>+</span>
                     </button>
@@ -787,6 +803,7 @@ onBeforeUnmount(() => {
             v-if="showModal"
             :block="editingBlock"
             :groups="groups"
+            :default-group-id="createGroupId"
             @close="closeModal"
             @saved="saveBlock"
         />

@@ -14,14 +14,31 @@ const emit = defineEmits([
 ])
 
 const name = ref('')
+const color = ref(null)
+const backgroundColor = ref(null)
 const loading = ref(false)
 const error = ref('')
 
 const isEdit = computed(() => !!props.group)
 
+const DEFAULT_COLOR = '#94a3b8'
+const DEFAULT_BACKGROUND_COLOR = '#e2e8f0'
+
+const colorModel = computed({
+    get: () => color.value || DEFAULT_COLOR,
+    set: (value) => { color.value = value },
+})
+
+const backgroundColorModel = computed({
+    get: () => backgroundColor.value || DEFAULT_BACKGROUND_COLOR,
+    set: (value) => { backgroundColor.value = value },
+})
+
 onMounted(() => {
     if (props.group) {
         name.value = props.group.name
+        color.value = props.group.color || null
+        backgroundColor.value = props.group.background_color || null
     }
 })
 
@@ -60,6 +77,8 @@ const submit = async () => {
             credentials: 'same-origin',
             body: JSON.stringify({
                 name: name.value.trim(),
+                color: color.value,
+                background_color: backgroundColor.value,
             }),
         })
 
@@ -114,6 +133,50 @@ const submit = async () => {
                         placeholder="Например, Работа"
                         autofocus
                     >
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Цвет кружка
+                    </label>
+
+                    <div class="color-row">
+                        <input
+                            v-model="colorModel"
+                            type="color"
+                        >
+
+                        <button
+                            v-if="color"
+                            type="button"
+                            class="color-reset"
+                            @click="color = null"
+                        >
+                            Сбросить
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Фон категории
+                    </label>
+
+                    <div class="color-row">
+                        <input
+                            v-model="backgroundColorModel"
+                            type="color"
+                        >
+
+                        <button
+                            v-if="backgroundColor"
+                            type="button"
+                            class="color-reset"
+                            @click="backgroundColor = null"
+                        >
+                            Сбросить
+                        </button>
+                    </div>
                 </div>
 
                 <div
@@ -217,6 +280,38 @@ const submit = async () => {
     border-radius: 6px;
 
     font-size: 14px;
+}
+
+.color-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.color-row input[type="color"] {
+    width: 44px;
+    height: 34px;
+    padding: 2px;
+
+    border: 1px solid #ddd;
+    border-radius: 6px;
+
+    cursor: pointer;
+}
+
+.color-reset {
+    border: 0;
+    background: transparent;
+
+    color: #777;
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.color-reset:hover {
+    color: #333;
+    text-decoration: underline;
 }
 
 .error {
