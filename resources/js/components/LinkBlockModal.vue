@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import ImageCropper from './ImageCropper.vue'
 
 const props = defineProps({
     block: {
@@ -31,6 +32,9 @@ const removeImage = ref(false)
 const loading = ref(false)
 const error = ref('')
 
+const cropperFile = ref(null)
+const showCropper = ref(false)
+
 const isEdit = computed(() => !!props.block)
 
 onMounted(() => {
@@ -54,10 +58,30 @@ const selectImage = (file) => {
         return
     }
 
-    image.value = file
+    error.value = ''
+    cropperFile.value = file
+    showCropper.value = true
+}
+
+const onCropped = (blob) => {
+    const croppedFile = new File(
+        [blob],
+        'cover.jpg',
+        { type: 'image/jpeg' }
+    )
+
+    image.value = croppedFile
     removeImage.value = false
 
-    imagePreview.value = URL.createObjectURL(file)
+    imagePreview.value = URL.createObjectURL(blob)
+
+    showCropper.value = false
+    cropperFile.value = null
+}
+
+const onCropCancel = () => {
+    showCropper.value = false
+    cropperFile.value = null
 }
 
 const onFileChange = (event) => {
@@ -305,6 +329,13 @@ const submit = async () => {
 
             </form>
         </div>
+
+        <ImageCropper
+            v-if="showCropper"
+            :file="cropperFile"
+            @cropped="onCropped"
+            @cancel="onCropCancel"
+        />
     </div>
 </template>
 <style scoped>
