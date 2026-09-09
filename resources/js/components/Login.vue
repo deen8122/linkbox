@@ -8,6 +8,12 @@ const step = ref('email')
 const loading = ref(false)
 const error = ref('')
 
+const getCsrfToken = () => {
+    return document
+        .querySelector('meta[name="csrf-token"]')
+        ?.getAttribute('content')
+}
+
 const requestCode = async () => {
     error.value = ''
     loading.value = true
@@ -18,7 +24,9 @@ const requestCode = async () => {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken(),
             },
+            credentials: 'same-origin',
             body: JSON.stringify({
                 email: email.value,
             }),
@@ -48,7 +56,9 @@ const verifyCode = async () => {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken(),
             },
+            credentials: 'same-origin',
             body: JSON.stringify({
                 email: email.value,
                 code: code.value,
@@ -72,11 +82,48 @@ const verifyCode = async () => {
 
 <template>
     <div class="login">
-        <div class="login-card">
+        <div class="intro">
+            <svg
+                class="logo"
+                width="48"
+                height="48"
+                viewBox="0 0 64 64"
+                aria-hidden="true"
+            >
+                <rect width="64" height="64" rx="16" fill="#1f1f1f" />
+                <g
+                    fill="none"
+                    stroke="#ffffff"
+                    stroke-width="8"
+                    stroke-linecap="round"
+                >
+                    <rect x="4" y="21" width="26" height="22" rx="11" transform="rotate(-45 17 32)" />
+                    <rect x="34" y="21" width="26" height="22" rx="11" transform="rotate(-45 47 32)" />
+                </g>
+            </svg>
+
             <h1>LinkBox</h1>
 
+            <p class="tagline">
+                Все ваши ссылки — на одной странице
+            </p>
+
+            <p class="description">
+                LinkBox — сервис для сборки персональной страницы со ссылками:
+                соцсети, проекты, магазины. Группируйте ссылки по блокам,
+                добавляйте обложки и настраивайте фон — без кода.
+            </p>
+
+            <ul class="features">
+                <li>Группировка ссылок по блокам</li>
+                <li>Обложки и favicon для каждой ссылки</li>
+                <li>Свой фон профиля</li>
+            </ul>
+        </div>
+
+        <div class="login-card">
             <template v-if="step === 'email'">
-                <p>
+                <p class="card-label">
                     Введите email для входа
                 </p>
 
@@ -144,10 +191,67 @@ const verifyCode = async () => {
     min-height: 100vh;
 
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 40px;
 
-    background: #f5f5f5;
+    padding: 40px 20px;
+
+    background: #fafafa;
+}
+
+.intro {
+    width: 100%;
+    max-width: 360px;
+
+    text-align: center;
+}
+
+.logo {
+    margin-bottom: 16px;
+}
+
+.intro h1 {
+    margin: 0 0 6px;
+
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+}
+
+.tagline {
+    margin: 0 0 14px;
+
+    font-size: 15px;
+    font-weight: 500;
+    color: #1f1f1f;
+}
+
+.description {
+    margin: 0 0 20px;
+
+    color: #777;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.features {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+    border-top: 1px solid #e5e5e5;
+    padding-top: 16px;
+}
+
+.features li {
+    color: #555;
+    font-size: 13px;
 }
 
 .login-card {
@@ -157,15 +261,15 @@ const verifyCode = async () => {
     padding: 30px;
 
     background: white;
+    border: 1px solid #eee;
     border-radius: 12px;
-
-    box-shadow: 0 10px 40px rgba(0, 0, 0, .08);
 }
 
-.login-card h1 {
-    margin: 0 0 10px;
+.login-card .card-label {
+    margin: 0 0 16px;
 
-    text-align: center;
+    color: #666;
+    font-size: 14px;
 }
 
 .login-card p {

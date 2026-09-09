@@ -37,6 +37,8 @@ const showCropper = ref(false)
 
 const isEdit = computed(() => !!props.block)
 
+const MAX_IMAGE_SIZE = 15 * 1024 * 1024
+
 onMounted(() => {
     if (props.block) {
         url.value = props.block.url
@@ -55,6 +57,11 @@ const selectImage = (file) => {
 
     if (!file.type.startsWith('image/')) {
         error.value = 'Можно загрузить только изображение'
+        return
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+        error.value = 'Файл слишком большой. Максимальный размер — 15 МБ'
         return
     }
 

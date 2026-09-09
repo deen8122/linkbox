@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\LoginCodeMail;
 use App\Models\LoginCode;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -37,10 +38,7 @@ class AuthController extends Controller
             'expires_at' => now()->addMinutes(10),
         ]);
 
-        Log::info('Login code generated', [
-            'email' => $email,
-            'code' => $code,
-        ]);
+        Mail::to($email)->send(new LoginCodeMail($code));
 
         return response()->json([
             'message' => 'Код отправлен',

@@ -13,6 +13,7 @@ const backgroundLoading = ref(false)
 const backgroundError = ref('')
 
 const BACKGROUND_CACHE_KEY = 'linkbox-background-cache'
+const MAX_IMAGE_SIZE = 15 * 1024 * 1024
 
 const getCsrfToken = () => {
     return document
@@ -124,6 +125,11 @@ const onBackgroundFileChange = async (event) => {
     event.target.value = ''
 
     if (!file) {
+        return
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+        backgroundError.value = 'Файл слишком большой. Максимальный размер — 15 МБ'
         return
     }
 

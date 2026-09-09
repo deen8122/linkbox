@@ -11,7 +11,7 @@ Route::get('/', function () {
     return view('app');
 });
 Route::get('/login', function () {
-    return view('home');
+    return view('app');
 })->name('login');
 Route::post('/auth/request-code', [
     AuthController::class,

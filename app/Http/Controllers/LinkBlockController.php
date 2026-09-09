@@ -78,9 +78,19 @@ class LinkBlockController extends Controller
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp,gif',
-                'max:5120',
+                'max:15360',
             ],
         ]);
+
+        if (
+            $request->file('image')
+            && $this->linkBlockService->countImages($request->user()->id) >= LinkBlockService::MAX_IMAGES_PER_USER
+        ) {
+            return response()->json([
+                'message' => 'Достигнут лимит загруженных фото: максимум '
+                    . LinkBlockService::MAX_IMAGES_PER_USER,
+            ], 422);
+        }
 
         $block = $this->linkBlockService->create(
             $request->user(),
@@ -119,12 +129,23 @@ class LinkBlockController extends Controller
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp,gif',
-                'max:5120',
+                'max:15360',
             ],
             'remove_image' => [
                 'boolean',
             ],
         ]);
+
+        if (
+            $request->file('image')
+            && !$linkBlock->image
+            && $this->linkBlockService->countImages($request->user()->id) >= LinkBlockService::MAX_IMAGES_PER_USER
+        ) {
+            return response()->json([
+                'message' => 'Достигнут лимит загруженных фото: максимум '
+                    . LinkBlockService::MAX_IMAGES_PER_USER,
+            ], 422);
+        }
 
         $linkBlock = $this->linkBlockService->update(
             $linkBlock,

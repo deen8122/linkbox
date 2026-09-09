@@ -19,7 +19,7 @@ class UserBackgroundController extends Controller
                 'required',
                 'image',
                 'mimes:jpg,jpeg,png,webp,gif',
-                'max:10240',
+                'max:15360',
             ],
         ]);
 

@@ -15,6 +15,8 @@ class LinkBlockService
 {
     private const IMAGE_DIRECTORY = 'link-blocks';
 
+    public const MAX_IMAGES_PER_USER = 50;
+
     public function __construct(
         private readonly LinkFaviconService $faviconService
     ) {}
@@ -25,6 +27,14 @@ class LinkBlockService
             ->where('user_id', $userId)
             ->orderBy('position')
             ->get();
+    }
+
+    public function countImages(int $userId): int
+    {
+        return LinkBlock::query()
+            ->where('user_id', $userId)
+            ->whereNotNull('image')
+            ->count();
     }
 
     public function reorder(int $userId, array $blocks): void
