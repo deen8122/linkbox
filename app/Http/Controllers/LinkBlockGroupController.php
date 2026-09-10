@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReorderLinkBlockGroupRequest;
+use App\Http\Requests\StoreLinkBlockGroupRequest;
+use App\Http\Requests\UpdateLinkBlockGroupRequest;
 use App\Models\LinkBlockGroup;
 use App\Services\LinkBlockGroupService;
 use Illuminate\Http\JsonResponse;
@@ -22,23 +25,9 @@ class LinkBlockGroupController extends Controller
         );
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreLinkBlockGroupRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-            'color' => [
-                'nullable',
-                'regex:/^#[0-9a-fA-F]{6}$/',
-            ],
-            'background_color' => [
-                'nullable',
-                'regex:/^#[0-9a-fA-F]{6}$/',
-            ],
-        ]);
+        $data = $request->validated();
 
         $group = $this->linkBlockGroupService->create(
             $request->user(),
@@ -49,7 +38,7 @@ class LinkBlockGroupController extends Controller
     }
 
     public function update(
-        Request $request,
+        UpdateLinkBlockGroupRequest $request,
         LinkBlockGroup $linkBlockGroup
     ): JsonResponse {
         abort_unless(
@@ -57,21 +46,7 @@ class LinkBlockGroupController extends Controller
             403
         );
 
-        $data = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-            'color' => [
-                'nullable',
-                'regex:/^#[0-9a-fA-F]{6}$/',
-            ],
-            'background_color' => [
-                'nullable',
-                'regex:/^#[0-9a-fA-F]{6}$/',
-            ],
-        ]);
+        $data = $request->validated();
 
         $group = $this->linkBlockGroupService->update(
             $linkBlockGroup,
@@ -97,25 +72,9 @@ class LinkBlockGroupController extends Controller
         ]);
     }
 
-    public function reorder(Request $request): JsonResponse
+    public function reorder(ReorderLinkBlockGroupRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'groups' => [
-                'required',
-                'array',
-            ],
-
-            'groups.*.id' => [
-                'required',
-                'integer',
-            ],
-
-            'groups.*.position' => [
-                'required',
-                'integer',
-                'min:0',
-            ],
-        ]);
+        $data = $request->validated();
 
         $this->linkBlockGroupService->reorder(
             $request->user()->id,

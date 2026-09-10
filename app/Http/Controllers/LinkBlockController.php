@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ReorderLinkBlockRequest;
+use App\Http\Requests\StoreLinkBlockRequest;
+use App\Http\Requests\UpdateLinkBlockRequest;
 use App\Models\LinkBlock;
 use App\Services\LinkBlockService;
 use Illuminate\Http\JsonResponse;
@@ -22,30 +25,9 @@ class LinkBlockController extends Controller
         );
     }
 
-    public function reorder(Request $request): JsonResponse
+    public function reorder(ReorderLinkBlockRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'blocks' => [
-                'required',
-                'array',
-            ],
-
-            'blocks.*.id' => [
-                'required',
-                'integer',
-            ],
-
-            'blocks.*.position' => [
-                'required',
-                'integer',
-                'min:0',
-            ],
-
-            'blocks.*.link_block_group_id' => [
-                'nullable',
-                'integer',
-            ],
-        ]);
+        $data = $request->validated();
 
         $this->linkBlockService->reorder(
             $request->user()->id,
@@ -57,30 +39,9 @@ class LinkBlockController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreLinkBlockRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'url' => [
-                'required',
-                'url',
-                'max:2048',
-            ],
-            'title' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-            'link_block_group_id' => [
-                'nullable',
-                'integer',
-            ],
-            'image' => [
-                'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp,gif',
-                'max:15360',
-            ],
-        ]);
+        $data = $request->validated();
 
         if (
             $request->file('image')
@@ -102,7 +63,7 @@ class LinkBlockController extends Controller
     }
 
     public function update(
-        Request $request,
+        UpdateLinkBlockRequest $request,
         LinkBlock $linkBlock
     ): JsonResponse {
         abort_unless(
@@ -110,31 +71,7 @@ class LinkBlockController extends Controller
             403
         );
 
-        $data = $request->validate([
-            'url' => [
-                'required',
-                'url',
-                'max:2048',
-            ],
-            'title' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-            'link_block_group_id' => [
-                'nullable',
-                'integer',
-            ],
-            'image' => [
-                'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp,gif',
-                'max:15360',
-            ],
-            'remove_image' => [
-                'boolean',
-            ],
-        ]);
+        $data = $request->validated();
 
         if (
             $request->file('image')

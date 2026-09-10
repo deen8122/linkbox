@@ -2,25 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RequestLoginCodeRequest;
+use App\Http\Requests\VerifyLoginCodeRequest;
 use App\Mail\LoginCodeMail;
 use App\Models\LoginCode;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    public function requestCode(Request $request): JsonResponse
+    public function requestCode(RequestLoginCodeRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-            ],
-        ]);
+        $data = $request->validated();
 
         $email = Str::lower(trim($data['email']));
 
@@ -38,26 +35,23 @@ class AuthController extends Controller
             'expires_at' => now()->addMinutes(10),
         ]);
 
-        Mail::to($email)->send(new LoginCodeMail($code));
+        if (config('mail.default') === 'log') {
+            Log::info('Запрошен код авторизации', [
+                'email' => $email,
+                'code' => $code,
+            ]);
+        } else {
+            Mail::to($email)->send(new LoginCodeMail($code));
+        }
 
         return response()->json([
             'message' => 'Код отправлен',
         ]);
     }
 
-    public function verifyCode(Request $request): JsonResponse
+    public function verifyCode(VerifyLoginCodeRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-            ],
-            'code' => [
-                'required',
-                'digits:6',
-            ],
-        ]);
+        $data = $request->validated();
 
         $email = Str::lower(trim($data['email']));
 

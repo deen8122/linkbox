@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Models\LinkBlock;
 use App\Models\LinkBlockGroup;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Encoders\WebpEncoder;
 use Intervention\Image\Laravel\Facades\Image;
@@ -15,18 +15,25 @@ class LinkBlockService
 {
     private const IMAGE_DIRECTORY = 'link-blocks';
 
+    private const CACHE_TTL_DAYS = 30;
+
     public const MAX_IMAGES_PER_USER = 50;
 
     public function __construct(
         private readonly LinkFaviconService $faviconService
     ) {}
 
-    public function listForUser(int $userId): Collection
+    public function listForUser(int $userId): array
     {
-        return LinkBlock::query()
-            ->where('user_id', $userId)
-            ->orderBy('position')
-            ->get();
+        return Cache::store('file')->remember(
+            $this->cacheKey($userId),
+            now()->addDays(self::CACHE_TTL_DAYS),
+            fn () => LinkBlock::query()
+                ->where('user_id', $userId)
+                ->orderBy('position')
+                ->get()
+                ->toArray()
+        );
     }
 
     public function countImages(int $userId): int
@@ -67,11 +74,13 @@ class LinkBlockService
                 ->where('user_id', $userId)
                 ->update($update);
         }
+
+        $this->forgetCache($userId);
     }
 
     public function create(User $user, array $data, ?UploadedFile $image): LinkBlock
     {
-        return LinkBlock::create([
+        $block = LinkBlock::create([
             'user_id' => $user->id,
             'link_block_group_id' => $this->resolveGroupId($user->id, $data),
             'url' => $data['url'],
@@ -80,6 +89,10 @@ class LinkBlockService
             'favicon_path' => $this->faviconService->getOrDownload($data['url']),
             'position' => $this->getNextPosition($user->id),
         ]);
+
+        $this->forgetCache($user->id);
+
+        return $block;
     }
 
     public function update(
@@ -114,6 +127,8 @@ class LinkBlockService
 
         $linkBlock->save();
 
+        $this->forgetCache($linkBlock->user_id);
+
         return $linkBlock;
     }
 
@@ -124,6 +139,8 @@ class LinkBlockService
         }
 
         $linkBlock->delete();
+
+        $this->forgetCache($linkBlock->user_id);
     }
 
     private function storeImage(UploadedFile $file, int $userId): string
@@ -165,5 +182,15 @@ class LinkBlockService
         return (int) LinkBlock::query()
                 ->where('user_id', $userId)
                 ->max('position') + 1;
+    }
+
+    private function cacheKey(int $userId): string
+    {
+        return "link-blocks:user:{$userId}";
+    }
+
+    private function forgetCache(int $userId): void
+    {
+        Cache::store('file')->forget($this->cacheKey($userId));
     }
 }
