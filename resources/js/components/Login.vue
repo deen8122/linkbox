@@ -3,6 +3,7 @@ import { ref } from 'vue'
 
 const email = ref('')
 const code = ref('')
+const debugCode = ref('')
 
 const step = ref('email')
 const loading = ref(false)
@@ -38,6 +39,7 @@ const requestCode = async () => {
             throw new Error(data.message || 'Ошибка')
         }
 
+        debugCode.value = data.code || ''
         step.value = 'code'
     } catch (e) {
         error.value = e.message
@@ -148,6 +150,10 @@ const verifyCode = async () => {
                 <p>
                     Код отправлен на
                     <strong>{{ email }}</strong>
+                </p>
+
+                <p v-if="debugCode" style="color: red;">
+                    DEBUG: код = <strong>{{ debugCode }}</strong>
                 </p>
 
                 <form @submit.prevent="verifyCode">

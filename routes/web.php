@@ -13,6 +13,9 @@ Route::get('/', function () {
 Route::get('/login', function () {
     return view('app');
 })->name('login');
+Route::get('/links', function () {
+    return view('app');
+})->name('links');
 Route::post('/auth/request-code', [
     AuthController::class,
     'requestCode',

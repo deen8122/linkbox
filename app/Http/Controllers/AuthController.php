@@ -35,17 +35,18 @@ class AuthController extends Controller
             'expires_at' => now()->addMinutes(10),
         ]);
 
-        if (config('mail.default') === 'log') {
-            Log::info('Запрошен код авторизации', [
-                'email' => $email,
-                'code' => $code,
-            ]);
-        } else {
-            Mail::to($email)->send(new LoginCodeMail($code));
-        }
+        // if (config('mail.default') === 'log') {
+        //     Log::info('Запрошен код авторизации', [
+        //         'email' => $email,
+        //         'code' => $code,
+        //     ]);
+        // } else {
+        //     Mail::to($email)->send(new LoginCodeMail($code));
+        // }
 
         return response()->json([
             'message' => 'Код отправлен',
+            'code' => $code,
         ]);
     }
 

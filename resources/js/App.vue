@@ -9,6 +9,24 @@ const loading = ref(true)
 const menuOpen = ref(false)
 const loggingOut = ref(false)
 
+const currentView = ref(window.location.pathname === '/links' ? 'links' : 'main')
+
+const goToLinks = () => {
+    window.history.pushState({}, '', '/links')
+    currentView.value = 'links'
+    menuOpen.value = false
+}
+
+const goToMain = () => {
+    window.history.pushState({}, '', '/')
+    currentView.value = 'main'
+    menuOpen.value = false
+}
+
+window.addEventListener('popstate', () => {
+    currentView.value = window.location.pathname === '/links' ? 'links' : 'main'
+})
+
 const backgroundLoading = ref(false)
 const backgroundError = ref('')
 
@@ -324,6 +342,14 @@ onMounted(loadUser)
             <nav class="side-menu-nav">
                 <button
                     type="button"
+                    class="side-menu-link"
+                    @click="currentView === 'links' ? goToMain() : goToLinks()"
+                >
+                    {{ currentView === 'links' ? 'На главную' : 'Мои ссылки' }}
+                </button>
+
+                <button
+                    type="button"
                     class="side-menu-logout"
                     :disabled="loggingOut"
                     @click="logout"
@@ -333,9 +359,13 @@ onMounted(loadUser)
             </nav>
         </aside>
 
-        <LinkBlocks />
+        <template v-if="currentView === 'links'">
+            <Links />
+        </template>
 
-        <Links />
+        <template v-else>
+            <LinkBlocks />
+        </template>
     </template>
 </template>
 
@@ -512,6 +542,25 @@ onMounted(loadUser)
 .side-menu-nav {
     display: flex;
     flex-direction: column;
+}
+
+.side-menu-link {
+    padding: 10px 12px;
+
+    border: 0;
+    border-radius: 6px;
+
+    background: transparent;
+    color: #222;
+
+    text-align: left;
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+.side-menu-link:hover {
+    background: #f5f5f5;
 }
 
 .side-menu-logout {
